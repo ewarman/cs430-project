@@ -1,0 +1,75 @@
+CS 430 Final Project
+Local Solution Pseudocode
+Emily Warman, Rachael Affenit
+
+Helper Functions:
+	all_vertical_lines() -> gets all of the vertical lines necessary to separate points 0 to n {O(n)}
+	get_smaller_feasible_solution() -> explained below {O(n^4)}
+	get_combinations() -> get all pairs of lines in a solution {O(n choose 2)}
+	generate_possible_lines() -> generate a list of all possible lines to draw not in current solution {O(n)}
+	collisions() -> code below {O(n^2)}
+	get_x_y_lines() -> get separate, sorted lists of x and y lines from an arbitrary solution {O(nlogn)}
+
+Total Time Complexity: O(n^5)
+	Solution calls get_smaller_feasible_solutions n times
+
+----------------------------------------------------------------------
+
+def solution(points):
+	#start with an arbitrary solution of all vertical lines
+	sol = all_vertical_lines(points)
+	best_sol = sol
+	#while a combination leads to a feasible solution
+	while sol:
+		#if there are less points in the new solution, update the old best solution
+		if len(sol)<len(best_sol):
+			best_sol = sol
+		#see if there's another solution removing two lines and adding one. if None, return the last solution found.
+		sol = get_smaller_feasible_solution(sol)
+	return best_sol
+
+def get_smaller_feasible_solution(points,sol):
+	#get all pairs of points to remove
+	pairs = get_combinations(points,sol)
+	#get all lines not already drawn
+	possible_lines = generate_possible_lines(points,sol)
+	for pair in pairs:
+		#remove 2 lines, add 1
+		sol.remove(pair[0])
+		sol.remove(pair[1])
+		for possible_line in possible_lines:
+			sol.append(possible_line)
+			#if the new solution is feasible, return it
+			if no_collisions(points,sol):
+				return sol
+			#else, try adding different line with the pair removed
+			else:
+				sol.remove(possible_line)
+		#if no lines added to this pair work, try the next pair
+		sol.append(pair[0])
+		sol.append(pair[1])
+	#if no combinations are feasible, return None
+	return None
+
+def collisions(points,sol):
+	#create 2 sorted lists of all x and y lines drawn to represent bounding boxes
+	x_interval,y_interval = get_x_y_lines(sol,len(points))
+	
+	#keep track of all of the boxes with a point inside
+	boxes=[]
+	
+	#find the box a point falls in
+	for point in points:
+		x_box=0,y_box=0
+		while point[x]>=x_interval[x_box] and x_box<len(x_interval):
+			x_box++
+		while point[y]>=y_interval[x_box] and y_box<len(y_interval):
+			y_box++
+		box = (x_box,y_box)
+		#if a point has already been found in that bounding box, there are collisions
+		if box in boxes:
+			return True
+		else:
+			boxes.append(box)
+	#if no collisions, return true
+	return False

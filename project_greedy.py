@@ -1,7 +1,7 @@
 
 # coding: utf-8
 
-# In[320]:
+# In[17]:
 
 ##########################
 # CS 430 Final Project
@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 import math
 
 
-# In[321]:
+# In[18]:
 
 ##########################
 # Helper Functions & Global Vars
@@ -132,6 +132,15 @@ def draw(gg, line, idx):
                     separated += 1
     return gg, separated
 
+def read_file(filename):
+    points = []
+    with open(os.getcwd()+'/input/'+filename, 'r') as f:
+        inpt = f.readlines()
+        for point in inpt[1:]:
+            point = point.split(' ')
+            points.append(((int(point[0])),(int(point[1]))))
+    return points
+
 def nodes_left(graph):
     for point in graph.keys():
         if graph[point]!=[]:
@@ -145,7 +154,7 @@ def nodes_left(graph):
 # 
 # The figure below represents the example input as a fully connected graph.
 
-# In[322]:
+# In[19]:
 
 ##########################
 # Example Separations
@@ -164,7 +173,7 @@ plot(points,make_graph(points),[],[])
 
 # When a vertical line is drawn between the points, the connections between the points to the left of the line and right (or top and bottom if horizontal) of the line are broken. When there are no edges in the graph, each point is fully separated from its neighbors. See example below:
 
-# In[323]:
+# In[20]:
 
 # Show example separations
 print("First separation")
@@ -197,11 +206,11 @@ plot(points,graph,[1.5,2.5],[2.5])
 #    
 #    Return all output information
 # 
-# The running time of this algorithm would be O(n^3) with the three loops present.
+# The running time of this algorithm would be O(n^4) with the three loops present.
 #     The outside while loop iterates through all n nodes in the graph
-#     The inner for loops together iterate through all possible n^2 edges in the graph
+#     This calls find_best, with a time complexity of O(n^3) due to its call to the O(n^2) method "separate"inside the for loop
 
-# In[324]:
+# In[21]:
 
 ##########################
 # Greedy Algorithm Solution
@@ -258,7 +267,7 @@ def segment(points):
     return (graph,S,vh,total_lines_drawn,x_lines_drawn,y_lines_drawn)
 
 
-# In[325]:
+# In[22]:
 
 ##########################
 # Testing Greedy Algorithm
@@ -269,7 +278,7 @@ print("Testing Greedy Algorithm")
 print("##########################")
 
 points = []
-importf('instance03.txt') ###### CHANGE THIS FILE NAME IN ORDER TO TEST A DIFFERENT INSTANCE FILE ######
+importf('instance_04.txt') ###### CHANGE THIS FILE NAME IN ORDER TO TEST A DIFFERENT INSTANCE FILE ######
 graph,S,vh,total_lines,x_lines,y_lines = segment(points)
 plot(points,graph,x_lines,y_lines)
 print(x_lines)
@@ -283,7 +292,7 @@ for i in range (0,len(S)):
         print ("h ", S[i])
 
 
-# In[326]:
+# In[23]:
 
 ##########################
 # Example of Algorithm Failure
@@ -339,6 +348,29 @@ draw(graph, 8.5, 0)
 plot(points,graph,[4.5, 7.5, 8.5, 6.5],[4.5, 8.5])
 
 print("6\nv 4.5\nh 4.5\nv 7.5\nh 8.5\nv 6.5\nv 8.5")
+
+
+# In[24]:
+
+print("##########################")
+print("Running Greedy Algorithm")
+print("##########################")
+
+if __name__ == "__main__":
+    for filename in os.listdir(os.getcwd()+'/input'):
+        points = []
+        points = read_file(filename)
+        print(filename)
+        g,S,vh,tot,x,y = segment(points)
+        with open(os.getcwd()+'/output_greedy/'+filename, 'w') as o_file:
+            o_file.write(str(len(S))+'\n')
+            for i in range (0,len(S)):
+                if (vh[i] == 0):
+                    o_file.write('v '+str(S[i])+'\n')
+                elif (vh[i] == 1):
+                    o_file.write('h '+str(S[i])+'\n')
+
+        print("write success")
 
 
 # In[ ]:
